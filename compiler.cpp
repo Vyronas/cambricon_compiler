@@ -13,8 +13,15 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 using namespace std;
+
+void convertIR(string line, vector<string> &vec);
+void printISA(char *outFileName, vector<string> &vec);
+
+//  TODO: Create data structures for declared variables and their size
+//  TODO: Create data structures for registers
 
 int main(int argc, char *argv[]) {
     // Check command line arguments
@@ -31,5 +38,46 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    // Find the line contains the real low-level IR code
+    string line;
+    while (getline(inFile, line)) {
+        size_t found = line.find("code {");
+        if (found != string::npos)
+            break;
+    }
+    // Can't find code part till end of file
+    if (!inFile) {
+        cerr << "Input file is not in a proper format" << endl;
+        return -1;
+    }
+
+    // Read every line and generate ISA accordingly
+    vector<string> vecISA;
+    while (getline(inFile, line)) {
+        if (line == "}")
+            break;
+        convertIR(line, vecISA);
+    }
+    inFile.close();
+    printISA(argv[2], vecISA);
+
     return 0;
+}
+
+void convertIR(string line, vector<string> &vec) {
+    vec.push_back(line);
+}
+
+/**
+ * Print to output file specified by outFileName
+ * @param outFileName
+ * @param vec
+ */
+void printISA(char *outFileName, vector<string> &vec) {
+    ofstream outFile;
+    outFile.open(outFileName);
+    for (auto &it : vec) {
+        outFile << it << endl;
+    }
+    outFile.close();
 }
