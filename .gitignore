@@ -99,3 +99,9 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 *.iml
 *.xml
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
