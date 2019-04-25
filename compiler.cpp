@@ -13,14 +13,29 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
+
+#include "Variable.h"
 
 using namespace std;
 
 void convertIR(string line, vector<string> &vec);
+
+string findVar(string &line);
+
+string findType(string &line);
+
+vector<string> findSize(string &line);
+
+vector<string> split(const string &stringToBeSplitted, const string &delimeter);
+
+bool declareLine(string &line);
+
 void printISA(char *outFileName, vector<string> &vec);
 
-//  TODO: Create data structures for declared variables and their size
+
+//  TODO: Create data structures (vector) for declared variables both global and
 //  TODO: Create data structures for registers
 
 int main(int argc, char *argv[]) {
@@ -65,7 +80,86 @@ int main(int argc, char *argv[]) {
 }
 
 void convertIR(string line, vector<string> &vec) {
+    string var = findVar(line);
+    cout << var << endl;
+    if (declareLine(line)) {
+        string varType = findType(line);
+        //cout << varType << endl;
+        vector<string> vecSize = findSize(line);
+        // Construct a Variable type object
+        vector<int> vecSizeInt(5, 0);
+        for (int i = 0; i < vecSize.size(); i++) {
+            vecSizeInt[i] = stoi(vecSize[i]);
+        }
+        Variable v(var, varType, vecSizeInt);
+        v.getDimension();
+    }
     vec.push_back(line);
+}
+
+/**
+ * Find first occurrence of '%' then find variable name by it
+ * @param line will be parsed
+ * @return variable
+ */
+string findVar(string &line) {
+    size_t varStart = line.find('%') + 1;
+    size_t varEnd = line.find(" =");
+    string var = line.substr(varStart, varEnd - varStart);
+    line = line.substr(varEnd + 3);
+    return var;
+}
+
+string findType(string &line) {
+    size_t varStart = line.find("Ty: ") + 4;
+    size_t varEnd = line.find('<');
+    string var = line.substr(varStart, varEnd - varStart);
+    return var;
+}
+
+vector<string> findSize(string &line) {
+    size_t varStart = line.find('<') + 1;
+    size_t varEnd = line.find('>');
+    string var = line.substr(varStart, varEnd - varStart);
+    vector<string> vec = split(var, " x ");
+    return vec;
+}
+
+/**
+ * Check if this is a declaration line
+ * @param line
+ * @return true if it is
+ */
+bool declareLine(string &line) {
+    if ((line.find("allocactivation") != string::npos)
+        && (line.find("deallocactivation") == string::npos)) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Split the line by delimiter
+ * Reference: https://www.fluentcpp.com/2017/04/21/how-to-split-a-string-in-c/
+ * @param s
+ * @param delimiter
+ * @return split vector of tokens
+ */
+vector<string> split(const string &stringToBeSplitted, const string &delimeter) {
+    vector<string> splittedString;
+    int startIndex = 0;
+    int endIndex = 0;
+    while ((endIndex = stringToBeSplitted.find(delimeter, startIndex))
+            < stringToBeSplitted.size()) {
+        string val = stringToBeSplitted.substr(startIndex, endIndex - startIndex);
+        splittedString.push_back(val);
+        startIndex = endIndex + delimeter.size();
+    }
+    if (startIndex < stringToBeSplitted.size()) {
+        string val = stringToBeSplitted.substr(startIndex);
+        splittedString.push_back(val);
+    }
+    return splittedString;
 }
 
 /**
