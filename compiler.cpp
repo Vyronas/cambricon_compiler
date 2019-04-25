@@ -42,7 +42,7 @@ void print_vector(deque<string> a);
 deque<string> split(const string &s);
 
 
-//  TODO: Create data structures (vector) for declared variables both global and
+//  TODO: Create data structures (vector) for declared variables both global and local
 //  TODO: Create data structures for registers
 
 
