@@ -15,6 +15,9 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <deque>
+#include <regex>
+#include <sstream>
 
 #include "Variable.h"
 
@@ -34,9 +37,14 @@ bool declareLine(string &line);
 
 void printISA(char *outFileName, vector<string> &vec);
 
+void print_vector(deque<string> a);
+
+deque<string> split(const string &s);
+
 
 //  TODO: Create data structures (vector) for declared variables both global and
 //  TODO: Create data structures for registers
+
 
 int main(int argc, char *argv[]) {
     // Check command line arguments
@@ -51,6 +59,36 @@ int main(int argc, char *argv[]) {
     if (!inFile) {
         cerr << "Failed to open file " << argv[1] << endl;
         return -1;
+    }
+
+    string declare_line;
+    getline(inFile, declare_line);
+    while (getline(inFile, declare_line)) {
+        size_t found = declare_line.find("; size");
+        if (found != string::npos)
+            break;
+        deque<string> token;
+        token = split(declare_line);
+        int len = token.size();
+        // if return a empty token break
+        if (!token.empty()) {
+            int num_of_number = token.size() - 4;
+            string d1 = token[0];//input
+            string d2 = token[1];//weightVar
+            string d3 = token[2];//float
+
+            print_vector(token);
+
+            vector<int> dimension;
+            for (int i = 3; i < token.size() - 1; i++) {
+                dimension.push_back(atoi(token[i].c_str()));
+            }
+            vector<int>::iterator it;
+            for (it = dimension.begin(); it != dimension.end(); ++it) {
+                // cout << *it <<" ";
+            }
+            cout << endl;
+        }
     }
 
     // Find the line contains the real low-level IR code
@@ -78,6 +116,7 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
 
 void convertIR(string line, vector<string> &vec) {
     string var = findVar(line);
@@ -150,7 +189,7 @@ vector<string> split(const string &stringToBeSplitted, const string &delimeter) 
     int startIndex = 0;
     int endIndex = 0;
     while ((endIndex = stringToBeSplitted.find(delimeter, startIndex))
-            < stringToBeSplitted.size()) {
+           < stringToBeSplitted.size()) {
         string val = stringToBeSplitted.substr(startIndex, endIndex - startIndex);
         splittedString.push_back(val);
         startIndex = endIndex + delimeter.size();
@@ -174,4 +213,38 @@ void printISA(char *outFileName, vector<string> &vec) {
         outFile << it << endl;
     }
     outFile.close();
+}
+
+/**
+ * split the line by delimiter
+ * @param s
+ * @param delimiter
+ * @return split vector of tokens
+ */
+deque<string> split(const string &s) {
+    deque<string> tokens;
+    //reference : https://stackoverflow.com/questions/49201654/splitting-a-string-with-multiple-delimiters-in-c
+    std::regex words_regex("[^\\s=:%<>]+");
+    auto words_begin = std::sregex_iterator(s.begin(), s.end(), words_regex);
+    auto words_end = std::sregex_iterator();
+
+    for (std::sregex_iterator i = words_begin; i != words_end; ++i)
+        if (!((*i).str() == "//")) {
+            if ((*i).str() != "x")
+                tokens.push_back((*i).str());
+        } else {
+            break;
+        }
+
+    return tokens;
+}
+
+/*
+print vector
+*/
+void print_vector(deque<string> a) {
+    deque<string>::iterator it;
+    for (it = a.begin(); it != a.end(); ++it) {
+        cout << *it << " ";
+    }
 }
