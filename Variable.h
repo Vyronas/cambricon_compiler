@@ -15,9 +15,13 @@ private:
     vector<int> dVec;
 public:
     Variable(string n, string t, string r, vector<int> v);
-    vector<int> getDimension();
-};
 
+    vector<int> getDimension();
+
+    string getName();
+
+    string getRegister();
+};
 
 
 #endif //CAMBRICON_COMPILER_VARIABLE_H

@@ -27,7 +27,7 @@ void compileInit();
 
 void convertIR(string line, vector<string> &vec);
 
-string findVar(string &line);
+string getVar(string &line);
 
 string findType(string &line);
 
@@ -37,11 +37,18 @@ vector<string> split(const string &stringToBeSplitted, const string &delimeter);
 
 bool declareLine(string &line);
 
+bool deallocLine(string &line);
+
+string findDealloc(const string &line);
+
 void printISA(char *outFileName, vector<string> &vec);
 
 void print_vector(deque<string> a);
 
 deque<string> split(const string &s);
+
+Variable findVar(const string& name);
+
 
 /*     Marcos for not using magic numbers     */
 #define MAX_REG_NUM 128
@@ -152,7 +159,7 @@ void compileInit() {
  * @param vec
  */
 void convertIR(string line, vector<string> &vec) {
-    string var = findVar(line);
+    string var = getVar(line);
 
     // If the line is only a declaration
     if (declareLine(line)) {
@@ -168,7 +175,18 @@ void convertIR(string line, vector<string> &vec) {
         regDeque.pop_front();
         //v.getDimension();
         vecVar.push_back(v);
-    } else { // A calculation line
+    } else if (deallocLine(line)){ // A dealloc line
+        string varName = findDealloc(line);
+        Variable varDealloc = findVar(varName);
+        // Delete the reg and variable in the global deque and vector
+        regDeque.push_back(varDealloc.getRegister());
+        for (auto it = vecVar.begin(); it != vecVar.end(); it++) {
+            if ((*it).getName() == varName) {
+                vecVar.erase(it);
+                break;
+            }
+        }
+    } else { // A function line
 
     }
     vec.push_back(line); // TODO: change the thing push into vec, should be ISA
@@ -179,7 +197,7 @@ void convertIR(string line, vector<string> &vec) {
  * @param line will be parsed
  * @return variable
  */
-string findVar(string &line) {
+string getVar(string &line) {
     size_t varStart = line.find('%') + 1;
     size_t varEnd = line.find(" =");
     string var = line.substr(varStart, varEnd - varStart);
@@ -202,6 +220,13 @@ vector<string> findSize(string &line) {
     return vec;
 }
 
+string findDealloc(const string &line) {
+    size_t varStart = line.find("@out") + 6;
+    size_t varEnd = line.find(" //");
+    string var = line.substr(varStart, varEnd - varStart);
+    return var;
+}
+
 /**
  * Check if this is a declaration line
  * @param line
@@ -210,6 +235,13 @@ vector<string> findSize(string &line) {
 bool declareLine(string &line) {
     if ((line.find("allocactivation") != string::npos)
         && (line.find("deallocactivation") == string::npos)) {
+        return true;
+    }
+    return false;
+}
+
+bool deallocLine(string &line) {
+    if (line.find("deallocactivation") != string::npos) {
         return true;
     }
     return false;
@@ -285,4 +317,13 @@ void print_vector(deque<string> a) {
     for (it = a.begin(); it != a.end(); ++it) {
         cout << *it << " ";
     }
+}
+
+Variable findVar(const string& name) {
+    for (auto &it : vecVar) {
+        if (it.getName() == name) {
+            return it;
+        }
+    }
+    return vecVar[0];  // Control never reach here
 }
