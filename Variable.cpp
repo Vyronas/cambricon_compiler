@@ -1,9 +1,10 @@
 #include "Variable.h"
 
-Variable::Variable(string n, string t, vector<int> v) {
+Variable::Variable(string n, string t, string r, vector<int> v) {
     name = n;
     varType = t;
     dVec = v;
+    reg = r;
 }
 vector<int> Variable::getDimension() {
     for (auto &it : dVec)

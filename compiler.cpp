@@ -23,6 +23,8 @@
 
 using namespace std;
 
+void compileInit();
+
 void convertIR(string line, vector<string> &vec);
 
 string findVar(string &line);
@@ -41,12 +43,17 @@ void print_vector(deque<string> a);
 
 deque<string> split(const string &s);
 
-/*     Global Variables    */
-vector<Variable> vecVar;
+/*     Marcos for not using magic numbers     */
+#define MAX_REG_NUM 128
 
+/*     Global Variables    */
+
+// Vector to save all the variables in declare and code
+static vector<Variable> vecVar;
+// Create data structures for registers
+static deque<string> regDeque;
 
 //  TODO: Create data structures (vector) for declared variables both global and local
-//  TODO: Create data structures for registers
 
 
 int main(int argc, char *argv[]) {
@@ -63,6 +70,8 @@ int main(int argc, char *argv[]) {
         cerr << "Failed to open file " << argv[1] << endl;
         return -1;
     }
+
+    compileInit();
 
     string declare_line;
     getline(inFile, declare_line);
@@ -89,7 +98,9 @@ int main(int argc, char *argv[]) {
                 n += 1;
             }
             // Construct the variable and push to global vector
-            Variable v(d1, d3, dimension);
+            string assignReg = regDeque[0];
+            Variable v(d1, d3, assignReg, dimension);
+            regDeque.pop_front();
             vecVar.push_back(v);
             vector<int>::iterator it;
             for (it = dimension.begin(); it != dimension.end(); ++it) {
@@ -126,6 +137,16 @@ int main(int argc, char *argv[]) {
 }
 
 /**
+ * Initialize the data structures for compiler
+ */
+void compileInit() {
+    for (int i = 0; i < MAX_REG_NUM; i++) {
+        string regName = '$' + to_string(i);
+        regDeque.push_back(regName);
+    }
+}
+
+/**
  * Convert current line to an object
  * @param line
  * @param vec
@@ -142,13 +163,15 @@ void convertIR(string line, vector<string> &vec) {
         for (int i = 0; i < vecSize.size(); i++) {
             vecSizeInt[i] = stoi(vecSize[i]);
         }
-        Variable v(var, varType, vecSizeInt);
+        string assignReg = regDeque[0];
+        Variable v(var, varType, assignReg, vecSizeInt);
+        regDeque.pop_front();
         //v.getDimension();
         vecVar.push_back(v);
     } else { // A calculation line
 
     }
-    vec.push_back(line); // TODO: change the thing push into vec
+    vec.push_back(line); // TODO: change the thing push into vec, should be ISA
 }
 
 /**

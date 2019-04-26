@@ -11,9 +11,10 @@ class Variable {
 private:
     string name;
     string varType;
+    string reg;
     vector<int> dVec;
 public:
-    Variable(string n, string t, vector<int> v);
+    Variable(string n, string t, string r, vector<int> v);
     vector<int> getDimension();
 };
 
