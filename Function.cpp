@@ -6,3 +6,8 @@ Function::Function(string n, string r, string ty, string out, vector<string> in)
     outVar = out;
     inVar = in;
 }
+
+string Function::process() {
+
+    return std::__cxx11::string();
+}

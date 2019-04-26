@@ -3,6 +3,7 @@
 
 
 #include "Variable.h"
+#include <vector>
 
 class Function : public Variable{
 private:
@@ -11,6 +12,7 @@ private:
     vector<string> inVar;
 public:
     Function(string n, string r, string ty, string out, vector<string> in);
+    string process();
 };
 
 

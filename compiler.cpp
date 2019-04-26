@@ -27,13 +27,19 @@ using namespace std;
 
 void compileInit();
 
-void convertIR(string line, vector<string> &vec);
+void convertCode(string line, vector<string> &vec);
 
-string getVar(string &line);
+string findVarName(string &line);
 
 string findType(string &line);
 
 vector<string> findSize(string &line);
+
+string findFuncName(string &line);
+
+string findFuncOut(string &line);
+
+void findFuncIn(string &line, vector<string> &vec);
 
 vector<string> split(const string &stringToBeSplitted, const string &delimeter);
 
@@ -59,8 +65,6 @@ deque<string> split(const string &s);
 static map<string, Variable> mapVar;
 // Create data structures for registers
 static deque<string> regDeque;
-
-//  TODO: Create data structures (vector) for declared variables both global and local
 
 
 int main(int argc, char *argv[]) {
@@ -135,7 +139,7 @@ int main(int argc, char *argv[]) {
     while (getline(inFile, line)) {
         if (line == "}")
             break;
-        convertIR(line, vecISA);
+        convertCode(line, vecISA);
     }
     inFile.close();
     printISA(argv[2], vecISA);
@@ -158,8 +162,8 @@ void compileInit() {
  * @param line
  * @param vec
  */
-void convertIR(string line, vector<string> &vec) {
-    string var = getVar(line);
+void convertCode(string line, vector<string> &vec) {
+    string var = findVarName(line);
 
     // If the line is only a declaration
     if (declareLine(line)) {
@@ -184,17 +188,23 @@ void convertIR(string line, vector<string> &vec) {
         mapVar.erase(it);
 
     } else { // A function line
-
+        string funcName = findFuncName(line);
+        string outName = findFuncOut(line);  // TODO: return value may be "None"
+        vector<string> inName;
+        findFuncIn(line, inName);
+        string assignReg = regDeque[0];
+        Function f(var, assignReg, funcName, outName, inName);
+        regDeque.pop_front();
     }
     vec.push_back(line); // TODO: change the thing push into vec, should be ISA
 }
 
 /**
- * Find first occurrence of '%' then find variable name by it
+ * Find functions to parse the complicated line
  * @param line will be parsed
  * @return variable
  */
-string getVar(string &line) {
+string findVarName(string &line) {
     size_t varStart = line.find('%') + 1;
     size_t varEnd = line.find(" =");
     string var = line.substr(varStart, varEnd - varStart);
@@ -222,6 +232,37 @@ string findDealloc(const string &line) {
     size_t varEnd = line.find(" //");
     string var = line.substr(varStart, varEnd - varStart);
     return var;
+}
+
+string findFuncName(string &line) {
+    size_t nameStart = 0;
+    size_t nameEnd = line.find(" @");
+    string name = line.substr(nameStart, nameEnd - nameStart);
+    return name;
+}
+
+string findFuncOut(string &line) {
+    size_t outStart = line.find("@out");
+    if (outStart == string::npos)
+        return "None";
+    outStart += 6;
+    size_t outEnd = line.find(", @in");
+    string out = line.substr(outStart, outEnd - outStart);
+    line = line.substr(outEnd + 2);
+    return out;
+}
+
+void findFuncIn(string &line, vector<string> &vec) {
+    size_t inStart;
+    while ((inStart = line.find("@in")) != string::npos) {
+        inStart += 5;
+        size_t inEnd = line.find(", @in");
+        if (inEnd == string::npos)
+            inEnd = line.find(" {");
+        string in = line.substr(inStart, inEnd - inStart);
+        vec.push_back(in);
+        line = line.substr(inEnd + 2);
+    }
 }
 
 /**
