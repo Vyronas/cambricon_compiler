@@ -8,13 +8,15 @@
 using namespace std;
 
 class Variable {
-private:
+protected:
     string name;
     string varType;
     string reg;
     vector<int> dVec;
 public:
     Variable(string n, string t, string r, vector<int> v);
+
+    Variable(string n, string r);
 
     vector<int> getDimension();
 

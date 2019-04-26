@@ -7,6 +7,11 @@ Variable::Variable(string n, string t, string r, vector<int> v) {
     reg = r;
 }
 
+Variable::Variable(string n, string r) {
+    name = n;
+    reg = r;
+}
+
 vector<int> Variable::getDimension() {
     for (auto &it : dVec)
         cout << it << ",";
@@ -21,4 +26,6 @@ string Variable::getRegister() {
 string Variable::getName() {
     return name;
 }
+
+
 
