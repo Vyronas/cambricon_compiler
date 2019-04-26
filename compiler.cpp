@@ -16,6 +16,7 @@
 #include <sstream>
 #include <vector>
 #include <deque>
+#include <map>
 #include <regex>
 #include <sstream>
 
@@ -48,8 +49,6 @@ void print_vector(deque<string> a);
 
 deque<string> split(const string &s);
 
-Variable findVar(const string& name);
-
 
 /*     Marcos for not using magic numbers     */
 #define MAX_REG_NUM 128
@@ -57,7 +56,7 @@ Variable findVar(const string& name);
 /*     Global Variables    */
 
 // Vector to save all the variables in declare and code
-static vector<Variable> vecVar;
+static map<string, Variable> mapVar;
 // Create data structures for registers
 static deque<string> regDeque;
 
@@ -109,7 +108,7 @@ int main(int argc, char *argv[]) {
             string assignReg = regDeque[0];
             Variable v(d1, d3, assignReg, dimension);
             regDeque.pop_front();
-            vecVar.push_back(v);
+            mapVar.insert(pair<string, Variable>(d1, v));
             vector<int>::iterator it;
             for (it = dimension.begin(); it != dimension.end(); ++it) {
                 // cout << *it <<" ";
@@ -174,20 +173,15 @@ void convertIR(string line, vector<string> &vec) {
         string assignReg = regDeque[0];
         Variable v(var, varType, assignReg, vecSizeInt);
         regDeque.pop_front();
-        //v.getDimension();
-        vecVar.push_back(v);
+        mapVar.insert(pair<string, Variable>(var, v));
 
     } else if (deallocLine(line)){ // A dealloc line
         string varName = findDealloc(line);
-        Variable varDealloc = findVar(varName);
-        // Delete the reg and variable in the global deque and vector
+        auto it = mapVar.find(varName);
+        Variable varDealloc = it->second;
+        // Delete the reg and variable in the global deque and map
         regDeque.push_back(varDealloc.getRegister());
-        for (auto it = vecVar.begin(); it != vecVar.end(); it++) {
-            if ((*it).getName() == varName) {
-                vecVar.erase(it);
-                break;
-            }
-        }
+        mapVar.erase(it);
 
     } else { // A function line
 
@@ -320,13 +314,4 @@ void print_vector(deque<string> a) {
     for (it = a.begin(); it != a.end(); ++it) {
         cout << *it << " ";
     }
-}
-
-Variable findVar(const string& name) {
-    for (auto &it : vecVar) {
-        if (it.getName() == name) {
-            return it;
-        }
-    }
-    return vecVar[0];  // Control never reach here
 }
