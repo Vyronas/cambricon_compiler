@@ -20,6 +20,7 @@
 #include <sstream>
 
 #include "Variable.h"
+#include "Function.h"
 
 using namespace std;
 
@@ -175,6 +176,7 @@ void convertIR(string line, vector<string> &vec) {
         regDeque.pop_front();
         //v.getDimension();
         vecVar.push_back(v);
+
     } else if (deallocLine(line)){ // A dealloc line
         string varName = findDealloc(line);
         Variable varDealloc = findVar(varName);
@@ -186,6 +188,7 @@ void convertIR(string line, vector<string> &vec) {
                 break;
             }
         }
+
     } else { // A function line
 
     }

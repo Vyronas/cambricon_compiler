@@ -3,4 +3,4 @@ project(cambricon_compiler)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(cambricon_compiler compiler.cpp Variable.cpp Variable.h)
+add_executable(cambricon_compiler compiler.cpp Variable.cpp Variable.h Function.cpp Function.h)
