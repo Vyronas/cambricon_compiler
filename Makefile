@@ -1,4 +1,4 @@
-a.out: compiler.o Variable.o
+a.out: compiler.o Variable.o Function.o
 	g++ -std=c++17 compiler.o Variable.o -o a.out
 
 compiler.o: compiler.cpp
@@ -6,6 +6,9 @@ compiler.o: compiler.cpp
 
 Variable.o: Variable.cpp 
 	g++ -std=c++17 -c Variable.cpp
+
+Function.o: Function.cpp
+    g++ -std=c++17 -c Function.cpp
 
 clean:
 	rm *.o *.out 
