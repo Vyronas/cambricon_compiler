@@ -39,7 +39,7 @@ string findFuncName(string &line);
 
 string findFuncOut(string &line);
 
-void findFuncIn(string &line, vector<string> &vec);
+void findFuncIn(string &line, vector<Variable *> &vec);
 
 vector<string> split(const string &stringToBeSplitted, const string &delimeter);
 
@@ -179,7 +179,7 @@ void convertCode(string line, vector<string> &vec) {
         regDeque.pop_front();
         mapVar.insert(pair<string, Variable>(var, v));
 
-    } else if (deallocLine(line)){ // A dealloc line
+    } else if (deallocLine(line)) { // A dealloc line
         string varName = findDealloc(line);
         auto it = mapVar.find(varName);
         Variable varDealloc = it->second;
@@ -189,14 +189,19 @@ void convertCode(string line, vector<string> &vec) {
 
     } else { // A function line
         string funcName = findFuncName(line);
-        string outName = findFuncOut(line);  // TODO: return value may be "None"
-        vector<string> inName;
+        string outName = findFuncOut(line);
+        vector<Variable *> inName;
         findFuncIn(line, inName);
         string assignReg = regDeque[0];
-        Function f(var, assignReg, funcName, outName, inName);
+        auto it = mapVar.find(outName);
+        Variable *varPtr = nullptr;
+        if (it != mapVar.end()) {
+            varPtr = &(it->second);
+        }
+        Function f(var, assignReg, funcName, varPtr, inName);
         regDeque.pop_front();
+        vec.push_back(f.process());
     }
-    vec.push_back(line); // TODO: change the thing push into vec, should be ISA
 }
 
 /**
@@ -252,7 +257,7 @@ string findFuncOut(string &line) {
     return out;
 }
 
-void findFuncIn(string &line, vector<string> &vec) {
+void findFuncIn(string &line, vector<Variable *> &vec) {
     size_t inStart;
     while ((inStart = line.find("@in")) != string::npos) {
         inStart += 5;
@@ -260,7 +265,10 @@ void findFuncIn(string &line, vector<string> &vec) {
         if (inEnd == string::npos)
             inEnd = line.find(" {");
         string in = line.substr(inStart, inEnd - inStart);
-        vec.push_back(in);
+        Variable *inPtr;
+        auto it = mapVar.find(in);
+        inPtr = &(it->second);
+        vec.push_back(inPtr);
         line = line.substr(inEnd + 2);
     }
 }

@@ -5,13 +5,14 @@
 #include "Variable.h"
 #include <vector>
 
-class Function : public Variable{
+class Function : public Variable {
 private:
     string funcType;
-    string outVar;
-    vector<string> inVar;
+    Variable * outVar;
+    vector<Variable *> inVar;
 public:
-    Function(string n, string r, string ty, string out, vector<string> in);
+    Function(string n, string r, string ty, Variable *out, vector<Variable *> in);
+
     string process();
 };
 
