@@ -41,6 +41,9 @@ void print_vector(deque<string> a);
 
 deque<string> split(const string &s);
 
+/*     Global Variables    */
+vector<Variable> vecVar;
+
 
 //  TODO: Create data structures (vector) for declared variables both global and local
 //  TODO: Create data structures for registers
@@ -79,10 +82,15 @@ int main(int argc, char *argv[]) {
 
             print_vector(token);
 
-            vector<int> dimension;
+            vector<int> dimension(5, 0);
+            int n = 0;
             for (int i = 3; i < token.size() - 1; i++) {
-                dimension.push_back(atoi(token[i].c_str()));
+                dimension[n] = atoi(token[i].c_str());
+                n += 1;
             }
+            // Construct the variable and push to global vector
+            Variable v(d1, d3, dimension);
+            vecVar.push_back(v);
             vector<int>::iterator it;
             for (it = dimension.begin(); it != dimension.end(); ++it) {
                 // cout << *it <<" ";
@@ -117,13 +125,17 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-
+/**
+ * Convert current line to an object
+ * @param line
+ * @param vec
+ */
 void convertIR(string line, vector<string> &vec) {
     string var = findVar(line);
-    cout << var << endl;
+
+    // If the line is only a declaration
     if (declareLine(line)) {
         string varType = findType(line);
-        //cout << varType << endl;
         vector<string> vecSize = findSize(line);
         // Construct a Variable type object
         vector<int> vecSizeInt(5, 0);
@@ -131,9 +143,12 @@ void convertIR(string line, vector<string> &vec) {
             vecSizeInt[i] = stoi(vecSize[i]);
         }
         Variable v(var, varType, vecSizeInt);
-        v.getDimension();
+        //v.getDimension();
+        vecVar.push_back(v);
+    } else { // A calculation line
+
     }
-    vec.push_back(line);
+    vec.push_back(line); // TODO: change the thing push into vec
 }
 
 /**
@@ -239,9 +254,9 @@ deque<string> split(const string &s) {
     return tokens;
 }
 
-/*
-print vector
-*/
+/**
+ * print vector
+ */
 void print_vector(deque<string> a) {
     deque<string>::iterator it;
     for (it = a.begin(); it != a.end(); ++it) {
