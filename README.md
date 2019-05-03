@@ -3,9 +3,9 @@ EE599 Final Project Repo
 
 
 Usage: 
-'make'
+`make`
 then
-'./a.out <input> <output>'
+`./a.out <input> <output>`
 
 
 Dump IR
