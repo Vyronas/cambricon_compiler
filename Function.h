@@ -14,6 +14,7 @@ private:
     vector<Variable *> inVar;
     int getSize(Variable * var);
     string to_hex(int input);
+    int getMidSize(Variable * var);
 public:
     Function(string n, string r, string ty, Variable *out, vector<Variable *> in);
 
