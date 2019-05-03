@@ -3,8 +3,9 @@ EE599 Final Project Repo
 
 
 Usage: 
-[make]
-[./a.out <input> <output>]
+'make'
+then
+'./a.out <input> <output>'
 
 
 Dump IR
