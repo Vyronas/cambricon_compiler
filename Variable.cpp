@@ -13,9 +13,6 @@ Variable::Variable(string n, string r) {
 }
 
 vector<int> Variable::getDimension() {
-    for (auto &it : dVec)
-        cout << it << ",";
-    cout << endl;
     return dVec;
 }
 
@@ -25,6 +22,10 @@ string Variable::getRegister() {
 
 string Variable::getName() {
     return name;
+}
+
+string Variable::getType() {
+    return varType;
 }
 
 

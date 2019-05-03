@@ -4,12 +4,16 @@
 
 #include "Variable.h"
 #include <vector>
+#include <sstream>
+#include <ios>
 
 class Function : public Variable {
 private:
     string funcType;
     Variable * outVar;
     vector<Variable *> inVar;
+    int getSize(Variable * var);
+    string to_hex(int input);
 public:
     Function(string n, string r, string ty, Variable *out, vector<Variable *> in);
 

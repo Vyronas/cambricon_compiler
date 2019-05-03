@@ -20,7 +20,6 @@
 #include <regex>
 #include <sstream>
 
-#include "Variable.h"
 #include "Function.h"
 
 using namespace std;
@@ -55,17 +54,9 @@ void print_vector(deque<string> a);
 
 deque<string> split(const string &s);
 
+map<string, Variable> mapVar;
 
-/*     Marcos for not using magic numbers     */
-#define MAX_REG_NUM 128
-
-/*     Global Variables    */
-
-// Vector to save all the variables in declare and code
-static map<string, Variable> mapVar;
-// Create data structures for registers
-static deque<string> regDeque;
-
+deque<string> regDeque;
 
 int main(int argc, char *argv[]) {
     // Check command line arguments
@@ -100,7 +91,7 @@ int main(int argc, char *argv[]) {
             string d2 = token[1];//weightVar
             string d3 = token[2];//float
 
-            print_vector(token);
+            //print_vector(token);
 
             vector<int> dimension(5, 0);
             int n = 0;
@@ -117,7 +108,7 @@ int main(int argc, char *argv[]) {
             for (it = dimension.begin(); it != dimension.end(); ++it) {
                 // cout << *it <<" ";
             }
-            cout << endl;
+            // cout << endl;
         }
     }
 
@@ -326,7 +317,7 @@ void printISA(char *outFileName, vector<string> &vec) {
     ofstream outFile;
     outFile.open(outFileName);
     for (auto &it : vec) {
-        outFile << it << endl;
+        outFile << it;
     }
     outFile.close();
 }
